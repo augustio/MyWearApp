@@ -17,12 +17,15 @@ public class MainActivity extends Activity {
 
     private final static int REQUEST_ENABLE_BT = 1;
     private final static int REQUEST_SELECT_DEVICE = 2;
+    private final static int CONNECTED = 3;
+    private final static int DISCONNECTED = 4;
 
     private TextView tv;
     private Button connectButton;
     private BluetoothAdapter mBluetoothAdapter;
     private String mSelectedSensor;
     private BluetoothGatt mConnectedSensor;
+    private int mConnectionState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,7 @@ public class MainActivity extends Activity {
 
         mConnectedSensor = null;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mConnectionState= DISCONNECTED;
         if (mBluetoothAdapter == null) {
             finish();
             return;
@@ -45,14 +49,12 @@ public class MainActivity extends Activity {
                     Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
                 } else {
-                    if (connectButton.getText().equals("Connect")) {
+                    if (connectButton.getText().toString().equalsIgnoreCase("Connect")) {
                         //Connect button pressed, open SensorList class, with popup window that scan for devices
                         Intent newIntent = new Intent(MainActivity.this, DeviceList.class);
                         startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
-                        connectButton.setText("Disconnect");
-                    } else if (connectButton.getText().equals("Disconnect")) {
+                    } else if (connectButton.getText().toString().equalsIgnoreCase("Disconnect")) {
                         disconnect(mSelectedSensor);
-                        connectButton.setText("Connect");
                     }
                 }
             }
@@ -109,14 +111,23 @@ public class MainActivity extends Activity {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.d("MainActivity", "Connected to " + sensorAddress + ": " + sensorName);
                 mConnectedSensor = gatt;
-                tv.setText(mConnectedSensor.getDevice().getName());
+                runOnUiThread(new Runnable(){
+                    public void run(){
+                        tv.setText(mConnectedSensor.getDevice().getName());
+                        connectButton.setText("Disconnect");
+                    }
+                });
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d("MainActiviy", "Disconnected from " + sensorAddress + ": " + sensorName);
-                tv.setText("No Device");
                 mConnectedSensor = null;
+                runOnUiThread(new Runnable(){
+                    public void run(){
+                        tv.setText("No Device");
+                        connectButton.setText("Connect");
+                    }
+                });
             }
         }
     };
-
 }
 
