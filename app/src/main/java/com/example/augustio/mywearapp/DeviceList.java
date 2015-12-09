@@ -90,10 +90,11 @@ public class DeviceList extends Activity {
         btnScanCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(btnScanCancel.getText().toString().equalsIgnoreCase("Scan")){
+                if (!mScanning){
+                    mEmptyList.setVisibility(View.VISIBLE);
                     scanLeDevice(true);
-                }else
-                    scanLeDevice(false);
+                }
+                else finish();
             }
         });
 

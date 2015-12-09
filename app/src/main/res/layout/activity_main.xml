@@ -17,5 +17,6 @@ tools:context=".MainActivity">
         android:layout_height="wrap_content"
         android:layout_below="@id/btn_connect"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
         android:text="No Device"/>
 </RelativeLayout>
