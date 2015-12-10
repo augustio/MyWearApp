@@ -12,6 +12,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +21,7 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.UUID;
 
-public class MainActivity extends Activity {
+public class MainActivity extends WearableActivity {
 
     private final static String TAG = "MainActiviy";
 
@@ -52,6 +53,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setAmbientEnabled();
+
         setContentView(R.layout.activity_main);
         tv = (TextView) findViewById(R.id.device_name);
         tv.setText("No Device");
@@ -64,6 +68,13 @@ public class MainActivity extends Activity {
         if (mBluetoothAdapter == null) {
             finish();
             return;
+        }
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        } else {
+            Intent newIntent = new Intent(MainActivity.this, DeviceList.class);
+            startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
         }
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,6 +114,24 @@ public class MainActivity extends Activity {
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void onEnterAmbient(Bundle ambientDetails) {
+        super.onEnterAmbient(ambientDetails);
+        disconnect(mSelectedSensor);
+    }
+
+    @Override
+    public void onExitAmbient() {
+        super.onExitAmbient();
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        } else {
+            Intent newIntent = new Intent(MainActivity.this, DeviceList.class);
+            startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
         }
     }
 

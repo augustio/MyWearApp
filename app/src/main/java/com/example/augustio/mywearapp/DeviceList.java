@@ -109,7 +109,6 @@ public class DeviceList extends Activity {
         newSensorsListView.setAdapter(mDeviceAdapter);
         newSensorsListView.setOnItemClickListener(mSensorClickListener);
         scanLeDevice(true);
-
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -147,7 +146,13 @@ public class DeviceList extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            addSensor(result.getDevice(), result.getRssi());
+                            //addSensor(result.getDevice(), result.getRssi());
+                            String sensor = result.getDevice().getAddress();
+                            mLEScanner.stopScan(mLeScanCallback);
+                            Intent result = new Intent();
+                            result.putExtra("SENSOR_LIST", sensor);
+                            setResult(Activity.RESULT_OK, result);
+                            finish();
                         }
                     });
 
